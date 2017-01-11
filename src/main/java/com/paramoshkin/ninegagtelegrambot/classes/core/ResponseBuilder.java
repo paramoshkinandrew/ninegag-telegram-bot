@@ -14,6 +14,9 @@ package com.paramoshkin.ninegagtelegrambot.classes.core;/*
  * limitations under the License.
  */
 
+import com.paramoshkin.ninegagapi.NineGagApi;
+import com.paramoshkin.ninegagapi.classes.exceptions.NineGagApiException;
+import com.paramoshkin.ninegagapi.classes.models.Post;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -23,9 +26,11 @@ public class ResponseBuilder {
 
     private final AbsSender bot;
     private final MessageParser messageParser;
+    private final NineGagApi nineGagApi;
 
     public ResponseBuilder(AbsSender bot) {
         this.messageParser = new MessageParser();
+        this.nineGagApi = new NineGagApi();
         this.bot = bot;
     }
 
@@ -42,8 +47,30 @@ public class ResponseBuilder {
                 bot.sendMessage(buildStopMessage(update.getMessage().getChatId()));
                 break;
             case DEFAULT:
-                // TODO Implement
+                // Answer with random 9Gag Post
+                try {
+                    Post randomPost = nineGagApi.getRandomPost();
+                } catch (NineGagApiException e) {
+                    e.printStackTrace();
+                    bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
+                }
+                break;
+            default:
+                bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
         }
+    }
+
+    /**
+     * Build fallback response message
+     *
+     * @param chatId - chat id for response
+     * @return - completed response message
+     */
+    private SendMessage buildFallbackMessage(Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Fallback message");
+        return message;
     }
 
     /**
