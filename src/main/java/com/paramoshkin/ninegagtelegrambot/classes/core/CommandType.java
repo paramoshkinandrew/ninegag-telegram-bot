@@ -15,7 +15,7 @@ package com.paramoshkin.ninegagtelegrambot.classes.core;/*
  */
 
 enum CommandType {
-    DEFAULT, START, HELP, STOP;
+    FALLBACK, DEFAULT, START, HELP, STOP, NEXT, INFO, LINK;
 
     public static CommandType fromString(String s) {
         String lowerString = s.toLowerCase();
@@ -25,6 +25,12 @@ enum CommandType {
             return HELP;
         else if (lowerString.equals("/stop"))
             return STOP;
+        else if (lowerString.equals("next"))
+            return NEXT;
+        else if (lowerString.equals("info"))
+            return INFO;
+        else if (lowerString.equals("link"))
+            return LINK;
         else
             return DEFAULT;
     }

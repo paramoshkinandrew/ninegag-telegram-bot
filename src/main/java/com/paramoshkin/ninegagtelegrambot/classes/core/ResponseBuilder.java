@@ -19,6 +19,9 @@ import com.paramoshkin.ninegagapi.classes.enums.ImageType;
 import com.paramoshkin.ninegagapi.classes.enums.VideoType;
 import com.paramoshkin.ninegagapi.classes.exceptions.NineGagApiException;
 import com.paramoshkin.ninegagapi.classes.models.Post;
+import com.paramoshkin.ninegagtelegrambot.classes.storage.InMemoryLastPostStorage;
+import com.paramoshkin.ninegagtelegrambot.classes.storage.LastPostStorage;
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.methods.send.SendVideo;
@@ -36,44 +39,106 @@ public class ResponseBuilder {
     private final AbsSender bot;
     private final MessageParser messageParser;
     private final NineGagApi nineGagApi;
+    private final LastPostStorage lastPostStorage;
 
     public ResponseBuilder(AbsSender bot) {
         this.messageParser = new MessageParser();
         this.nineGagApi = new NineGagApi();
+        this.lastPostStorage = new InMemoryLastPostStorage();
         this.bot = bot;
     }
 
     public void answer(Update update) throws TelegramApiException {
-        CommandType commandType = messageParser.defineCommandType(update);
+        answer(update, messageParser.defineCommandType(update));
+    }
+
+    public void answer(Update update, CommandType commandType) throws TelegramApiException {
+        answer(update, commandType, null);
+    }
+
+    // TODO Refactor that method and message builders
+    public void answer(Update update, CommandType commandType, String id) throws TelegramApiException {
+        Post lastPost;
         switch (commandType) {
             case START:
                 bot.sendMessage(buildStartMessage(update.getMessage().getChatId()));
-                break;
+                return;
             case HELP:
                 bot.sendMessage(buildHelpMessage(update.getMessage().getChatId()));
-                break;
+                return;
             case STOP:
                 bot.sendMessage(buildStopMessage(update.getMessage().getChatId()));
-                break;
+                return;
+            case NEXT:
+                lastPost = lastPostStorage.get(update.getMessage().getChatId());
+                if (lastPost == null) {
+                    answer(update, CommandType.DEFAULT);
+                } else {
+                    answer(update, CommandType.DEFAULT, lastPost.getNextId());
+                }
+                return;
+            case INFO:
+                lastPost = lastPostStorage.get(update.getMessage().getChatId());
+                if (lastPost == null) {
+                    answer(update, CommandType.DEFAULT);
+                } else {
+                    bot.sendMessage(buildInfoMessage(update.getMessage().getChatId(), lastPost));
+                }
+                return;
+            case LINK:
+                lastPost = lastPostStorage.get(update.getMessage().getChatId());
+                if (lastPost == null) {
+                    answer(update, CommandType.DEFAULT);
+                } else {
+                    bot.sendMessage(buildLinkMessage(update.getMessage().getChatId(), lastPost));
+                }
+                return;
             case DEFAULT:
                 // Answer with random 9Gag Post
                 try {
-                    Post randomPost = nineGagApi.getRandomPost();
-                    switch (randomPost.getPostType()) {
+                    Post post;
+                    if (id == null)
+                        post = nineGagApi.getRandomPost();
+                    else
+                        post = nineGagApi.getPost(id);
+                    lastPostStorage.set(update.getMessage().getChatId(), post);
+                    switch (post.getPostType()) {
                         case IMAGE:
-                            bot.sendPhoto(buildPhotoMessage(randomPost, update.getMessage().getChatId()));
+                            bot.sendPhoto(buildPhotoMessage(post, update.getMessage().getChatId()));
                             break;
                         case VIDEO:
-                            bot.sendVideo(buildVideoMessage(randomPost, update.getMessage().getChatId()));
+                            bot.sendVideo(buildVideoMessage(post, update.getMessage().getChatId()));
                             break;
                     }
+                    return;
                 } catch (NineGagApiException e) {
-                    bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
+                    answer(update, CommandType.FALLBACK);
+                    return;
                 }
-                break;
-            default:
+            case FALLBACK:
                 bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
+                return;
+            default:
+                answer(update, CommandType.DEFAULT);
         }
+
+
+    }
+
+    private SendMessage buildLinkMessage(Long chatId, Post lastPost) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(lastPost.getLink());
+        message.setReplyMarkup(getKeyboard(lastPost));
+        return message;
+    }
+
+    private SendMessage buildInfoMessage(Long chatId, Post lastPost) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Post info:\nID: " + lastPost.getId() + "\nComments: " + lastPost.getComments() + "\nVotes: " + lastPost.getVotes());
+        message.setReplyMarkup(getKeyboard(lastPost));
+        return message;
     }
 
     /**
@@ -180,9 +245,9 @@ public class ResponseBuilder {
         // Optional row
         if (post != null) {
             KeyboardRow secondRow = new KeyboardRow();
-            secondRow.add("Next");
-            secondRow.add("Info");
-            secondRow.add("Link");
+            secondRow.add(StringUtils.capitalize(CommandType.NEXT.toString().toLowerCase()));
+            secondRow.add(StringUtils.capitalize(CommandType.INFO.toString().toLowerCase()));
+            secondRow.add(StringUtils.capitalize(CommandType.LINK.toString().toLowerCase()));
             keyboardRows.add(secondRow);
         }
         keyboardMarkup.setKeyboard(keyboardRows);

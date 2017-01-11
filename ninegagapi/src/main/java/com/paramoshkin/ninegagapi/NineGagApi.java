@@ -25,6 +25,8 @@ import java.io.IOException;
 
 public class NineGagApi {
     private static final String RANDOM_PATH = "http://9gag.com/random";
+    private static final String POST_PATH_TEMPLATE = "http://9gag.com/gag/%s";
+
     private final DocumentParser documentParser;
 
     public NineGagApi() {
@@ -41,4 +43,13 @@ public class NineGagApi {
         return documentParser.parseOnePost(doc);
     }
 
+    public Post getPost(String id) throws NineGagApiException {
+        Document doc;
+        try {
+            doc = Jsoup.connect(String.format(POST_PATH_TEMPLATE, id)).get();
+        } catch (IOException e) {
+            throw new NineGagApiException(e.getMessage());
+        }
+        return documentParser.parseOnePost(doc);
+    }
 }
