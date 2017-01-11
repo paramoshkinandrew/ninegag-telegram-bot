@@ -25,11 +25,11 @@ class MessageParser {
      * @return - message type
      */
     CommandType defineCommandType(Update update) {
-        if (update.getMessage().getText().matches("^/[a-z]+")) {
-            String[] parsed = update.getMessage().getText().split("\\s");
-            if (parsed.length > 0)
-                return CommandType.fromString(parsed[0]);
-        }
+        if (update.getMessage().getText() == null)
+            return CommandType.DEFAULT;
+        String[] parsed = update.getMessage().getText().split("\\s");
+        if (parsed.length > 0)
+            return CommandType.fromString(parsed[0]);
         return CommandType.DEFAULT;
     }
 }

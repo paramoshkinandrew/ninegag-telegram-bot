@@ -16,5 +16,5 @@ package com.paramoshkin.ninegagapi.classes.enums;
  * limitations under the License.
  */
 public enum PostType {
-    IMAGE, VIDEO
+    IMAGE, VIDEO;
 }

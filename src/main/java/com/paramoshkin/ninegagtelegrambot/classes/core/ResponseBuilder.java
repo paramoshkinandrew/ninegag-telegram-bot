@@ -23,8 +23,13 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.methods.send.SendVideo;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResponseBuilder {
 
@@ -84,6 +89,7 @@ public class ResponseBuilder {
         message.setChatId(chatId);
         message.setCaption(post.getTitle());
         message.setVideo(post.getVideoUrls().get(VideoType.MP4));
+        message.setReplyMarkup(getKeyboard(post));
         return message;
     }
 
@@ -100,6 +106,7 @@ public class ResponseBuilder {
         message.setChatId(chatId);
         message.setCaption(post.getTitle());
         message.setPhoto(post.getImageUrls().get(ImageType.LARGE));
+        message.setReplyMarkup(getKeyboard(post));
         return message;
     }
 
@@ -113,6 +120,7 @@ public class ResponseBuilder {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Fallback message");
+        message.setReplyMarkup(getKeyboard());
         return message;
     }
 
@@ -126,6 +134,7 @@ public class ResponseBuilder {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Stop message");
+        message.setReplyMarkup(getKeyboard());
         return message;
     }
 
@@ -139,6 +148,7 @@ public class ResponseBuilder {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Help message");
+        message.setReplyMarkup(getKeyboard());
         return message;
     }
 
@@ -152,6 +162,30 @@ public class ResponseBuilder {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Start message");
+        message.setReplyMarkup(getKeyboard());
         return message;
+    }
+
+    private ReplyKeyboardMarkup getKeyboard() {
+        return getKeyboard(null);
+    }
+
+    private ReplyKeyboardMarkup getKeyboard(Post post) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<KeyboardRow>();
+        // Row for all cases
+        KeyboardRow firstRow = new KeyboardRow();
+        firstRow.add("Random \uD83D\uDC4B");
+        keyboardRows.add(firstRow);
+        // Optional row
+        if (post != null) {
+            KeyboardRow secondRow = new KeyboardRow();
+            secondRow.add("Next");
+            secondRow.add("Info");
+            secondRow.add("Link");
+            keyboardRows.add(secondRow);
+        }
+        keyboardMarkup.setKeyboard(keyboardRows);
+        return keyboardMarkup;
     }
 }
