@@ -45,4 +45,40 @@ public class Post {
         this.votes = votes;
         this.comments = comments;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public HashMap<ImageType, String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public HashMap<VideoType, String> getVideoUrls() {
+        return videoUrls;
+    }
+
+    public PostType getPostType() {
+        return postType;
+    }
+
+    public String getNextId() {
+        return nextId;
+    }
+
+    public int getVotes() {
+        return votes;
+    }
+
+    public int getComments() {
+        return comments;
+    }
 }

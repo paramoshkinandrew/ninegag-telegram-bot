@@ -15,9 +15,13 @@ package com.paramoshkin.ninegagtelegrambot.classes.core;/*
  */
 
 import com.paramoshkin.ninegagapi.NineGagApi;
+import com.paramoshkin.ninegagapi.classes.enums.ImageType;
+import com.paramoshkin.ninegagapi.classes.enums.VideoType;
 import com.paramoshkin.ninegagapi.classes.exceptions.NineGagApiException;
 import com.paramoshkin.ninegagapi.classes.models.Post;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.api.methods.send.SendVideo;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -50,14 +54,53 @@ public class ResponseBuilder {
                 // Answer with random 9Gag Post
                 try {
                     Post randomPost = nineGagApi.getRandomPost();
+                    switch (randomPost.getPostType()) {
+                        case IMAGE:
+                            bot.sendPhoto(buildPhotoMessage(randomPost, update.getMessage().getChatId()));
+                            break;
+                        case VIDEO:
+                            bot.sendVideo(buildVideoMessage(randomPost, update.getMessage().getChatId()));
+                            break;
+                    }
                 } catch (NineGagApiException e) {
-                    e.printStackTrace();
                     bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
                 }
                 break;
             default:
                 bot.sendMessage(buildFallbackMessage(update.getMessage().getChatId()));
         }
+    }
+
+    /**
+     * Build video response message
+     *
+     * @param post   - 9GAG post with video
+     * @param chatId - chat id for response
+     * @return - completed response message
+     */
+    private SendVideo buildVideoMessage(Post post, Long chatId) {
+        // TODO Fallback if MP4 not exists
+        SendVideo message = new SendVideo();
+        message.setChatId(chatId);
+        message.setCaption(post.getTitle());
+        message.setVideo(post.getVideoUrls().get(VideoType.MP4));
+        return message;
+    }
+
+    /**
+     * Build image response message
+     *
+     * @param post   - 9GAG post with image
+     * @param chatId - chat id for response
+     * @return - completed response message
+     */
+    private SendPhoto buildPhotoMessage(Post post, Long chatId) {
+        // TODO Fallback if LARGE not exists
+        SendPhoto message = new SendPhoto();
+        message.setChatId(chatId);
+        message.setCaption(post.getTitle());
+        message.setPhoto(post.getImageUrls().get(ImageType.LARGE));
+        return message;
     }
 
     /**
