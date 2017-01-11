@@ -6,7 +6,11 @@
 
     <groupId>com.paramoshkin</groupId>
     <artifactId>ninegagtelegrambot</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>ninegagapi</module>
+    </modules>
 
 
     <dependencies>
