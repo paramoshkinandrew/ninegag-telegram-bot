@@ -115,6 +115,13 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>build-image</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>tag-image-version</id>
                         <phase>deploy</phase>
                         <goals>
