@@ -15,7 +15,7 @@
 
     <scm>
         <url>https://github.com/paramoshkinandrew/ninegag-telegram-bot</url>
-        <connection>scm:git:https://github.com/paramoshkinandrew/ninegag-telegram-bot</connection>
+        <connection>scm:git:git@github.com:paramoshkinandrew/ninegag-telegram-bot.git</connection>
     </scm>
 
     <licenses>
