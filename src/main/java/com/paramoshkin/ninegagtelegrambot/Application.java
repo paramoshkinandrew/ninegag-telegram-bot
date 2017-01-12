@@ -7,8 +7,6 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
-import static sun.tools.javac.Main.EXIT_ERROR;
-
 /*
  * Copyright 2017 Andrew Paramoshkin <paramoshkin.andrew@gmail.com>
  *
@@ -62,7 +60,7 @@ public class Application {
      */
     private static void handleException(Exception exception) {
         System.out.println(exception.getMessage());
-        System.exit(EXIT_ERROR);
+        System.exit(1);
     }
 
 }
