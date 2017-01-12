@@ -5,7 +5,7 @@
     <groupId>com.paramoshkin</groupId>
     <artifactId>ninegagtelegrambot</artifactId>
     <packaging>jar</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <name>NineGagTelegramBot</name>
     <description>Telegram message bot for sending random image/video from 9gag.com</description>
@@ -14,7 +14,7 @@
     <scm>
         <url>https://github.com/paramoshkinandrew/ninegag-telegram-bot</url>
         <connection>scm:git:git@github.com:paramoshkinandrew/ninegag-telegram-bot.git</connection>
-      <tag>version-0.1.0</tag>
+      <tag>0.1.0</tag>
   </scm>
 
     <licenses>
